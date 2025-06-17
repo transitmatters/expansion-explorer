@@ -51,12 +51,6 @@ INSTANCE_HOSTNAME=$(aws ec2 describe-instances --instance-ids $INSTANCE_PHYSICAL
 # Get the current branch name
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Build and sync the build artifacts to the instance
-npm run build:prod
-rsync -avz --delete \
-  .next public data \
-  ubuntu@$INSTANCE_HOSTNAME:/home/ubuntu/expansion-explorer/
-
 # Run the playbook! :-)
 export ANSIBLE_HOST_KEY_CHECKING=False # If it's a new host, ssh known_hosts not having the key fingerprint will cause an error. Silence it
 ansible-playbook -v -i $INSTANCE_HOSTNAME, -u ubuntu --private-key ~/.ssh/transitmatters-expansion.pem playbook.yml --extra-vars "branch=$CURRENT_BRANCH"
