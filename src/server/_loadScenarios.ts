@@ -15,7 +15,7 @@ const GTFS_NETWORKS = [
         id: "regional_rail",
         name: "Expanded MBTA Service",
         unifiedFares: true,
-        networkName: "gtfs-regional-rail",
+        networkName: "gtfs-expansion",
     },
 ];
 

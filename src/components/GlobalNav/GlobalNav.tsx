@@ -27,6 +27,11 @@ const navLinks: NavLink[] = [
         href: "mailto:labs@transitmatters.org?subject=[Regional%20Rail%20Explorer%20Feedback]%20-%20",
         key: "feedback",
     },
+    {
+        title: "Donate",
+        href: "https://transitmatters.org/donate",
+        key: "donate",
+    },
 ];
 
 const renderNavLink = (link: NavLink, router: NextRouter) => {
@@ -53,10 +58,10 @@ const GlobalNav = React.forwardRef((_, ref: React.Ref<HTMLDivElement>) => {
             <Link href="/" legacyBehavior>
                 <div className={styles.logoContainer}>
                     {logo}
-                    <div className={styles.text}>
+                    {/* <div className={styles.text}>
                         <div className={styles.top}>Regional Rail</div>
                         <div className={styles.bottom}>Explorer</div>
-                    </div>
+                    </div> */}
                 </div>
             </Link>
             <div className={styles.links}>
