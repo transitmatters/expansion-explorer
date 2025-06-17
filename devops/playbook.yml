@@ -106,11 +106,6 @@
       args:
         chdir: /home/ubuntu/expansion-explorer
 
-    - name: build application
-      shell: npm run build:prod
-      args:
-        chdir: /home/ubuntu/expansion-explorer
-
     - name: Make sure a service unit is running and enabled
       become: yes
       become_user: root
