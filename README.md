@@ -13,6 +13,7 @@ Ensure you have the following dependencies installed:
 
 ### Local Deployment
 ```bash
+$ git lfs pull
 $ npm install
 $ export PORT=3000
 $ npm run build && npm start

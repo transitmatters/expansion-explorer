@@ -3,7 +3,7 @@
     "ExpansionHostname": {
       "Type": "String",
       "Default": "expansion-beta.labs.transitmatters.org",
-      "AllowedPattern": "^expansion\\.labs\\.transitmatters\\.org$",
+      "AllowedPattern": "^expansion(-beta)?\\.labs\\.transitmatters\\.org$",
       "Description": "The hostname for the site; for example: expansion.labs.transitmatters.org."
     },
     "ExpansionDomain": {
@@ -23,11 +23,11 @@
       "Properties": {
         "ImageId": "ami-0a7a4e87939439934",
         "InstanceType": "t4g.small",
-        "KeyName": "transitmatters-rre",
+        "KeyName": "transitmatters-expansion",
         "PropagateTagsToVolumeOnCreation": true,
         "SecurityGroupIds": [
           {
-            "Ref": "RRESecurityGroup"
+            "Ref": "ExpansionSecurityGroup"
           }
         ],
         "Tags": [

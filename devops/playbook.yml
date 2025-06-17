@@ -51,12 +51,27 @@
       ansible.builtin.apt:
         name: nodejs
         state: present
+        update_cache: yes
+
+    - name: Install Git LFS
+      become: yes
+      become_user: root 
+      ansible.builtin.apt:
+        name: git-lfs
+        state: present
+        update_cache: yes
 
     - name: get latest github repo
       git:
         repo: https://github.com/transitmatters/expansion-explorer.git
         dest: /home/ubuntu/expansion-explorer
         force: yes
+        version: "{{ branch | default('main') }}"
+
+    - name: pull git LFS files
+      command: git lfs pull
+      args:
+        chdir: /home/ubuntu/expansion-explorer
 
     - name: copy systemd service file
       become: yes
