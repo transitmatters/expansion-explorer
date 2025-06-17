@@ -107,7 +107,7 @@
         chdir: /home/ubuntu/expansion-explorer
 
     - name: build application
-      shell: npm run build
+      shell: npm run build:prod
       args:
         chdir: /home/ubuntu/expansion-explorer
 

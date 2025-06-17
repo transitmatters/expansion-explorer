@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:prod": "NODE_OPTIONS='--max-old-space-size=1536' NEXT_DISABLE_TYPECHECK=1 next build",
     "start": "next start -p $PORT",
     "storybook": "storybook dev -p 6006 -c .storybook",
     "lint": "eslint src",
