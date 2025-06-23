@@ -1,4 +1,5 @@
 import React from "react";
+import { getColorCodeForRouteId } from "routes";
 import { MINUTE, stringifyDuration, stringifyTime } from "time";
 
 import { JourneyInfo, JourneyTravelSegment, NetworkDayKind } from "types";
@@ -157,7 +158,7 @@ const JourneySummaryCard: React.FunctionComponent<Props> = (props) => {
                 x + width,
                 !shouldSkipLeftStation,
                 shouldShowRightStation,
-                getColorForRouteId(routeId)
+                getColorCodeForRouteId(routeId)
             );
             lines.push(lineHere);
             stations.push(...stationsHere);
