@@ -376,6 +376,10 @@ export const stationsByLine: Record<string, Station[]> = {
         { id: "place-grnst", name: "Green Street" },
         { id: "place-forhl", name: "Forest Hills" },
     ],
+    Bus: [
+        { id: "75", name: "84 Massachusetts Ave" },
+        { id: "82", name: "Massachusetts Ave @ Huntington Ave" },
+    ],
 };
 
 const indexStationsByProperty = (property: "id" | "name") => {

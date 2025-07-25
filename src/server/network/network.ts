@@ -47,11 +47,17 @@ const createStop = (gtfsStop: GtfsStop, parentStation: Station): Stop => {
 };
 
 const createStation = (gtfsStop: GtfsStop): Station => {
+    console.log(gtfsStop);
     return {
         id: gtfsStop.stopId,
         name: gtfsStop.stopName,
         stops: [],
     };
+};
+
+const logStation = (gtfsStop: GtfsStop) => {
+    console.log("not included station!");
+    console.log(gtfsStop);
 };
 
 const createTrip = (
@@ -145,6 +151,7 @@ export const buildNetworkFromGtfs = (loader: GtfsLoader) => {
         .map((trip) => createTrip(trip, gtfsServices, indexedRoutes))
         .filter((x): x is Trip => !!x);
     const stations = gtfsStops.filter((stop) => stop.locationType === "1").map(createStation);
+    gtfsStops.filter((stop) => stop.locationType !== "1").map(logStation);
     const indexedTrips = index(trips, "id");
     const allStops: Stop[] = [];
     console.log(`Loaded ${stations.length} stations from ${loader.basePath}`);
