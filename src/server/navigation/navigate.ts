@@ -168,11 +168,25 @@ const getNextVisitableStopTimes = (state: NavigationState, stop: Stop, now: Netw
     }
 
     const boardableStopTimes = stopTimes.filter((stopTime) => {
-        return (
-            isStopTimeToday(stopTime, today) &&
-            isSuccessorTime(stopTime.time, now, reverse) &&
-            !boardedRoutePatternIds.has(stopTime.trip.routePatternId)
-        );
+        const isToday = isStopTimeToday(stopTime, today);
+        const isSuccessor = isSuccessorTime(stopTime.time, now, reverse);
+        const notBoarded = !boardedRoutePatternIds.has(stopTime.trip.routePatternId);
+
+        // // Add debugging for bus stops
+        // if (stop.parentStation.name.toLowerCase().includes("bus") || stopTimes.length > 0) {
+        //     console.log(
+        //         `[Stop Debug] ${stop.name} (${stop.id}): total times=${stopTimes.length}, isToday=${isToday}, isSuccessor=${isSuccessor}, notBoarded=${notBoarded}`
+        //     );
+        //     if (stopTimes.length > 0 && !isToday) {
+        //         console.log(
+        //             `[Stop Debug] Service days: ${stopTime.trip.serviceDays.join(
+        //                 ", "
+        //             )} vs today: ${today}`
+        //         );
+        //     }
+        // }
+
+        return isToday && isSuccessor && notBoarded;
     });
 
     return getNextStopTimesForServiceAndDirection(
@@ -290,6 +304,24 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
     const { fromStation, toStation, initialDayTime, unifiedFares, navigationKind } = options;
     const reverse = navigationKind === "arrive-by";
     const [origin, goal] = resolveTemporalOrder(fromStation, toStation, reverse);
+
+    // Add debugging
+    console.log(
+        `[Navigation Debug] Origin: ${origin.name} (${origin.id}), Goal: ${goal.name} (${goal.id})`
+    );
+    console.log(
+        `[Navigation Debug] Origin stops: ${origin.stops.length}, Goal stops: ${goal.stops.length}`
+    );
+    console.log(`[Navigation Debug] Time: ${initialDayTime.time}, Day: ${initialDayTime.day}`);
+
+    // Check if origin has any stop times
+    const originStopTimes = origin.stops.flatMap((stop) => stop.stopTimes);
+    console.log(`[Navigation Debug] Origin total stop times: ${originStopTimes.length}`);
+
+    // Check if goal has any stop times
+    const goalStopTimes = goal.stops.flatMap((stop) => stop.stopTimes);
+    console.log(`[Navigation Debug] Goal total stop times: ${goalStopTimes.length}`);
+
     const startState = createStartState({
         today: initialDayTime.day,
         initialTime: initialDayTime.time,
@@ -301,7 +333,15 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
     const stateHeap = getStatePriorityHeap();
     const visitedStations = new Set<Station>([origin]);
     stateHeap.push(startState);
+
+    let iterationCount = 0;
     while (!stateHeap.empty()) {
+        iterationCount++;
+        if (iterationCount > 1000) {
+            console.log(`[Navigation Debug] Exceeded 1000 iterations, giving up`);
+            break;
+        }
+
         const nextBestStates = getBestStatesFromHeap(stateHeap);
         for (const state of nextBestStates) {
             if (state.kind === "travel") {
@@ -311,10 +351,23 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
                 visitedStations.add(state.to.stop.parentStation);
             }
             if (isGoalState(state)) {
+                console.log(
+                    `[Navigation Debug] Found goal state after ${iterationCount} iterations`
+                );
                 return state;
             }
-            getSuccessorStates(state).forEach((newState) => stateHeap.push(newState));
+            const successorStates = getSuccessorStates(state);
+            if (successorStates.length === 0) {
+                console.log(`[Navigation Debug] No successor states for ${state.kind} state`);
+            }
+            successorStates.forEach((newState) => stateHeap.push(newState));
         }
     }
+    console.log(`[Navigation Debug] Navigation failed after ${iterationCount} iterations`);
+    console.log(
+        `[Navigation Debug] Visited stations: ${Array.from(visitedStations)
+            .map((s) => s.name)
+            .join(", ")}`
+    );
     throw new NavigationFailedError();
 };

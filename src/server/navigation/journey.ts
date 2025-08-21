@@ -71,26 +71,41 @@ const createJourneyTravelSegment = (state: TravelNavigationState): JourneyTravel
 };
 
 const createJourneySegmentFromState = (state: NavigationState): null | JourneySegment => {
+    console.log(`[Journey Debug] Creating segment from ${state.kind} state`);
+
     if (state.kind === "transfer") {
+        console.log(`[Journey Debug] Creating transfer segment`);
         return createJourneyTransferSegment(state);
     }
     if (state.kind === "travel") {
+        console.log(`[Journey Debug] Creating travel segment`);
         return createJourneyTravelSegment(state);
     }
+    console.log(`[Journey Debug] No segment created for ${state.kind} state`);
     return null;
 };
 
 export const createJourneyFromState = (finalState: NavigationState): JourneySegment[] => {
+    console.log(`[Journey Debug] Creating journey from state: ${finalState.kind}`);
+    console.log(`[Journey Debug] State parents length: ${finalState.parents.length}`);
+
     const states = [...finalState.parents, finalState];
+    console.log(`[Journey Debug] Total states to process: ${states.length}`);
+
     let segments = states
         .map(createJourneySegmentFromState)
         .filter((x): x is JourneyTravelSegment => !!x);
+
+    console.log(`[Journey Debug] Created ${segments.length} segments`);
+
     if (finalState.context.reverse) {
         segments = segments.reverse();
     }
     const [firstSegment] = segments;
-    if (firstSegment.endTime - firstSegment.startTime < MINUTE) {
+    if (firstSegment && firstSegment.endTime - firstSegment.startTime < MINUTE) {
+        console.log(`[Journey Debug] Removing first segment (too short)`);
         return segments.slice(1);
     }
+    console.log(`[Journey Debug] Returning ${segments.length} segments`);
     return segments;
 };

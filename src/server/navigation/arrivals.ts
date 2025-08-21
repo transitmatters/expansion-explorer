@@ -41,7 +41,9 @@ export const getArrivalTimesForJourney = (
                         trip.stopTimes.some(
                             (stopOnSameTrip) =>
                                 compareTimes(stopOnSameTrip.time, originStopTime.time) > 0 &&
-                                goals.includes(stopOnSameTrip.stop.parentStation)
+                                goals.some(
+                                    (goal) => goal.id === stopOnSameTrip.stop.parentStation.id
+                                )
                         )
                     );
                 })
@@ -65,24 +67,36 @@ export const getArrivalsInfo = (journeyParams: ArrivalJourneyParams): ArrivalsIn
         { arrivals: enhancedArrivals, journey: enhancedJourney },
     ] = mapScenarios(
         ({ network, unifiedFares }) => {
-            const [fromStation, toStation] = getStationsByIds(network, fromStationId, toStationId);
-            const journey = navigate({
-                fromStation,
-                toStation,
-                unifiedFares,
-                initialDayTime: {
-                    time: parseTime("09:00"),
-                    day,
-                },
-            });
-            const toStationIds = journey
-                .map((seg) => seg.kind === "travel" && seg.endStation.id)
-                .filter((x): x is string => !!x);
-            const toStations = getStationsByIds(network, ...toStationIds);
-            const arrivals = getArrivalTimesForJourney(fromStation, toStations, day);
-            return { arrivals, journey };
+            try {
+                const [fromStation, toStation] = getStationsByIds(
+                    network,
+                    fromStationId,
+                    toStationId
+                );
+                const journey = navigate({
+                    fromStation,
+                    toStation,
+                    unifiedFares,
+                    initialDayTime: {
+                        time: parseTime("09:00"),
+                        day,
+                    },
+                });
+                const toStationIds = journey
+                    .map((seg) => seg.kind === "travel" && seg.endStation.id)
+                    .filter((x): x is string => !!x);
+                const toStations = getStationsByIds(network, ...toStationIds);
+                const arrivals = getArrivalTimesForJourney(fromStation, toStations, day);
+                return { arrivals, journey };
+            } catch (error) {
+                console.log(`[Arrivals Debug] Error in scenario: ${error.message}`);
+                return { arrivals: [] as number[], journey: null };
+            }
         },
-        () => ({ arrivals: [] as number[], journey: null })
+        (err, scenario) => {
+            console.log(`[Arrivals Debug] Error in scenario ${scenario.id}: ${err.message}`);
+            return { arrivals: [] as number[], journey: null };
+        }
     );
     const showArrivals = shouldShowArrivalTimes(enhancedJourney);
     return { baselineArrivals, enhancedArrivals, showArrivals };
