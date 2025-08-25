@@ -13,12 +13,15 @@ export const getStationsByIds = (network: Network, ...stationIds: string[]) => {
         if (id === "75") {
             console.log("HELLO THERE");
             console.log(network.stationsById[id]);
+            console.log(network.stationsById["75-parent"]);
         } else if (id == "75-parent") {
             console.log("HELLO THERE 2");
             console.log(network.stationsById[id]);
         }
         if (network.stationsById[id]) {
             return network.stationsById[id];
+        } else if (network.stationsById[`${id}-parent`]) {
+            return network.stationsById[`${id}-parent`];
         }
         // // Try with "-parent" suffix
         // const parentId = `${id}-parent`;
