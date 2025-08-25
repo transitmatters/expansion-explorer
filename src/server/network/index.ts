@@ -9,32 +9,11 @@ export const loadGtfsNetwork = (archivePath: string) => {
 
 export const getStationsByIds = (network: Network, ...stationIds: string[]) => {
     return stationIds.map((id) => {
-        // Try the original ID first
-        if (id === "75") {
-            console.log("HELLO THERE");
-            console.log(network.stationsById[id]);
-            console.log(network.stationsById["75-parent"]);
-        } else if (id == "75-parent") {
-            console.log("HELLO THERE 2");
-            console.log(network.stationsById[id]);
-        }
         if (network.stationsById[id]) {
             return network.stationsById[id];
         } else if (network.stationsById[`${id}-parent`]) {
             return network.stationsById[`${id}-parent`];
         }
-        // // Try with "-parent" suffix
-        // const parentId = `${id}-parent`;
-        // if (network.stationsById[parentId]) {
-        //     return network.stationsById[parentId];
-        // }
-        // // Try removing "-parent" suffix if the ID already has it
-        // if (id.endsWith('-parent')) {
-        //     const baseId = id.replace('-parent', '');
-        //     if (network.stationsById[baseId]) {
-        //         return network.stationsById[baseId];
-        //     }
-        // }
         throw new Error(`No station by id ${id}`);
     });
 };

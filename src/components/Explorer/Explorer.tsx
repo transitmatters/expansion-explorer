@@ -160,18 +160,16 @@ const Explorer: React.FunctionComponent<Props> = (props) => {
             );
         }
         if (journeys) {
-            console.log(`[UI Debug] Journeys received:`, journeys);
             const journeyResolvedWithError = journeys.find((j) => "error" in j);
             if (journeyResolvedWithError && "error" in journeyResolvedWithError) {
-                console.log(`[UI Debug] Journey resolved with error:`, journeyResolvedWithError);
                 return <JourneyErrorState />;
             }
             const [baseline, enhanced] = journeys as JourneyInfo[];
-            console.log(`[UI Debug] Baseline navigation failed:`, baseline.navigationFailed);
-            console.log(`[UI Debug] Enhanced navigation failed:`, enhanced.navigationFailed);
-            // Only show error state if BOTH scenarios fail
-            if (baseline.navigationFailed && enhanced.navigationFailed) {
-                console.log(`[UI Debug] Showing error state due to both scenarios failing`);
+            // make sure to show error state if regional rail is the one to fail
+            if (
+                enhanced.navigationFailed ||
+                (baseline.navigationFailed && enhanced.navigationFailed)
+            ) {
                 return <JourneyErrorState />;
             }
 

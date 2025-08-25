@@ -47,7 +47,6 @@ const createStop = (gtfsStop: GtfsStop, parentStation: Station): Stop => {
 };
 
 const createStation = (gtfsStop: GtfsStop): Station => {
-    console.log(gtfsStop);
     return {
         id: gtfsStop.stopId,
         name: gtfsStop.stopName,
@@ -156,22 +155,6 @@ export const buildNetworkFromGtfs = (loader: GtfsLoader) => {
     const indexedTrips = index(trips, "id");
     const allStops: Stop[] = [];
     console.log(`Loaded ${stations.length} stations from ${loader.basePath}`);
-
-    // Debug: Show all stops and their types
-    console.log(`[Network Debug] Total stops loaded: ${gtfsStops.length}`);
-    console.log(`[Network Debug] Stops by location type:`);
-    const stopsByType = gtfsStops.reduce(
-        (acc, stop) => {
-            acc[stop.locationType] = (acc[stop.locationType] || 0) + 1;
-            return acc;
-        },
-        {} as Record<string, number>
-    );
-    console.log(stopsByType);
-    console.log(
-        `[Network Debug] Parent stops: ${parentStops.length}, Standalone stops: ${standaloneStops.length}`
-    );
-
     stations.forEach((station) => {
         // For parent stations, find child stops
         // For standalone stops, they are their own stops
@@ -187,9 +170,6 @@ export const buildNetworkFromGtfs = (loader: GtfsLoader) => {
             childStops = standaloneStop ? [standaloneStop] : [];
         }
 
-        // console.log(
-        //     `[Network Debug] Station ${station.id} (${station.name}): ${childStops.length} child stops`
-        // );
         childStops
             .map((gtfsStop) => createStop(gtfsStop, station))
             .forEach((stop) => station.stops.push(stop));
@@ -205,9 +185,6 @@ export const buildNetworkFromGtfs = (loader: GtfsLoader) => {
             );
         });
         station.stops = station.stops.filter((stop) => stop.stopTimes.length > 0);
-        // console.log(
-        //     `[Network Debug] Station ${station.id} (${station.name}): ${station.stops.length} stops with stop times`
-        // );
         allStops.push(...station.stops);
     });
     stations.forEach((station) => {
