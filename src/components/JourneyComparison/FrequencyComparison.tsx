@@ -37,14 +37,34 @@ const FrequencyInfo = (props: FrequencyInfoProps) => {
     if (journey.navigationFailed) {
         return <>No train is coming for this route.</>;
     }
-    const {
-        segments,
-        arrivals: {
-            [arrivalStationId]: { times },
-        },
-    } = journey;
+
+    const { segments, arrivals } = journey;
+
+    // Try to find arrivals data, checking both the original ID and "-parent" suffix
+    let stationArrivals = arrivals?.[arrivalStationId];
+    if (!stationArrivals && arrivals) {
+        // Try with "-parent" suffix
+        stationArrivals = arrivals[`${arrivalStationId}-parent`];
+    }
+    if (!stationArrivals && arrivals && arrivalStationId.endsWith("-parent")) {
+        // Try removing "-parent" suffix
+        const baseId = arrivalStationId.replace("-parent", "");
+        stationArrivals = arrivals[baseId];
+    }
+
+    // Check if arrivals data exists for this station
+    if (!stationArrivals || !stationArrivals.times) {
+        return <>No arrival times available for this route.</>;
+    }
+
+    const { times } = stationArrivals;
     const arriveAtPlatform = (segments[0] as JourneyTransferSegment).startTime;
-    const now = times.find((time) => time >= arriveAtPlatform)!;
+    const now = times.find((time) => time >= arriveAtPlatform);
+
+    if (!now) {
+        return <>No upcoming arrivals for this route.</>;
+    }
+
     const shownTimes = times.filter((time) => Math.abs(time - now) <= halfInterval);
     const nextHeadwayIndex = shownTimes.findIndex((time) => time >= now);
     const nextArrival = shownTimes[nextHeadwayIndex];

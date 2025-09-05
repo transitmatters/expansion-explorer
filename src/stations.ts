@@ -383,6 +383,30 @@ export const stationsByLine: Record<string, Station[]> = {
         { id: "place-NB-0109", name: "Hersey" },
         { id: "place-NB-0120", name: "Needham Junction" },
     ],
+    Bus1: [
+        { id: "110", name: "Massachusetts Ave opp Holyoke St" },
+        { id: "72", name: "Massachusetts Ave @ Pearl St (Central Sq Inbound)" },
+        { id: "102", name: "Massachusetts Ave @ Prospect St (Central Sq Outbound)" },
+        { id: "187", name: "Massachusetts Ave @ Massachusetts Ave Station Inbound" },
+        { id: "188", name: "Massachusetts Ave @ Massachusetts Ave Station Outbound" },
+        { id: "place-nubn", name: "Nubian Station" },
+    ],
+    Bus57: [
+        { id: "place-kencl", name: "Kenmore" },
+        { id: "900", name: "Water St @ Watertown Yard" },
+        { id: "999", name: "Galen St @ Water St" },
+    ],
+    Bus39: [
+        { id: "place-bbsta", name: "Back Bay" },
+        { id: "22365", name: "105 S Huntington Ave" },
+        { id: "65741", name: "100 S Huntington Ave" },
+        { id: "place-forhl", name: "Forest Hills" },
+    ],
+    Bus111: [
+        { id: "8309", name: "Surface Rd @ Hanover St" },
+        { id: "55471", name: "Elm St @ Washington Ave" },
+        { id: "5547", name: "Elm St opp Haskell Ave" },
+    ],
 };
 
 const indexStationsByProperty = (property: "id" | "name") => {

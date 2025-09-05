@@ -144,14 +144,32 @@ export const buildNetworkFromGtfs = (loader: GtfsLoader) => {
         .trips()
         .map((trip) => createTrip(trip, gtfsServices, indexedRoutes))
         .filter((x): x is Trip => !!x);
-    const stations = gtfsStops.filter((stop) => stop.locationType === "1").map(createStation);
+
+    // Create stations for parent stops (location_type = "1") and standalone stops (location_type = "0" with no parent)
+    const parentStops = gtfsStops.filter((stop) => stop.locationType === "1");
+    const standaloneStops = gtfsStops.filter(
+        (stop) => stop.locationType === "0" && !stop.parentStation
+    );
+
+    const stations = [...parentStops, ...standaloneStops].map(createStation);
     const indexedTrips = index(trips, "id");
     const allStops: Stop[] = [];
     console.log(`Loaded ${stations.length} stations from ${loader.basePath}`);
     stations.forEach((station) => {
-        const childStops = gtfsStops.filter(
-            (stop) => stop.parentStation === station.id && stop.locationType === "0"
-        );
+        // For parent stations, find child stops
+        // For standalone stops, they are their own stops
+        let childStops: GtfsStop[];
+        if (gtfsStops.find((s) => s.stopId === station.id)?.locationType === "1") {
+            // This is a parent station, find its children
+            childStops = gtfsStops.filter(
+                (stop) => stop.parentStation === station.id && stop.locationType === "0"
+            );
+        } else {
+            // This is a standalone stop, it becomes its own stop
+            const standaloneStop = gtfsStops.find((s) => s.stopId === station.id);
+            childStops = standaloneStop ? [standaloneStop] : [];
+        }
+
         childStops
             .map((gtfsStop) => createStop(gtfsStop, station))
             .forEach((stop) => station.stops.push(stop));

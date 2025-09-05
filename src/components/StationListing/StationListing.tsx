@@ -28,9 +28,11 @@ const colors = ["Red", "Orange", "Blue", "Green", "Silver"];
 const isColorLine = colors.includes.bind(colors);
 const lineName = (line: string) => {
     if (line === "NewBedford") {
-        return "New Bedford";
+        return "New Bedford Line";
+    } else if (line.startsWith("Bus")) {
+        return `Bus Route ${line.slice(3)}`;
     }
-    return line;
+    return `${line} Line`;
 };
 const noop = () => {};
 const focusSearch = (el) => el?.focus();
@@ -154,7 +156,7 @@ const StationListing = React.forwardRef((props: Props, ref: any) => {
                                 render={<li />}
                                 disabled={true}
                             >
-                                {lineName(line)} Line
+                                {lineName(line)}
                             </CompositeItem>
                             {stations.map((station) => (
                                 <CompositeItem

@@ -168,11 +168,11 @@ const getNextVisitableStopTimes = (state: NavigationState, stop: Stop, now: Netw
     }
 
     const boardableStopTimes = stopTimes.filter((stopTime) => {
-        return (
-            isStopTimeToday(stopTime, today) &&
-            isSuccessorTime(stopTime.time, now, reverse) &&
-            !boardedRoutePatternIds.has(stopTime.trip.routePatternId)
-        );
+        const isToday = isStopTimeToday(stopTime, today);
+        const isSuccessor = isSuccessorTime(stopTime.time, now, reverse);
+        const notBoarded = !boardedRoutePatternIds.has(stopTime.trip.routePatternId);
+
+        return isToday && isSuccessor && notBoarded;
     });
 
     return getNextStopTimesForServiceAndDirection(
@@ -290,6 +290,7 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
     const { fromStation, toStation, initialDayTime, unifiedFares, navigationKind } = options;
     const reverse = navigationKind === "arrive-by";
     const [origin, goal] = resolveTemporalOrder(fromStation, toStation, reverse);
+
     const startState = createStartState({
         today: initialDayTime.day,
         initialTime: initialDayTime.time,
@@ -301,7 +302,15 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
     const stateHeap = getStatePriorityHeap();
     const visitedStations = new Set<Station>([origin]);
     stateHeap.push(startState);
+
+    let iterationCount = 0;
     while (!stateHeap.empty()) {
+        iterationCount++;
+        if (iterationCount > 1000) {
+            console.log(`[Navigation Debug] Exceeded 1000 iterations, giving up`);
+            break;
+        }
+
         const nextBestStates = getBestStatesFromHeap(stateHeap);
         for (const state of nextBestStates) {
             if (state.kind === "travel") {
@@ -311,6 +320,9 @@ export const navigateBetweenStations = (options: NavigationOptions) => {
                 visitedStations.add(state.to.stop.parentStation);
             }
             if (isGoalState(state)) {
+                console.log(
+                    `[Navigation Debug] Found goal state after ${iterationCount} iterations`
+                );
                 return state;
             }
             getSuccessorStates(state).forEach((newState) => stateHeap.push(newState));

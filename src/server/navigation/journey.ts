@@ -82,14 +82,16 @@ const createJourneySegmentFromState = (state: NavigationState): null | JourneySe
 
 export const createJourneyFromState = (finalState: NavigationState): JourneySegment[] => {
     const states = [...finalState.parents, finalState];
+
     let segments = states
         .map(createJourneySegmentFromState)
         .filter((x): x is JourneyTravelSegment => !!x);
+
     if (finalState.context.reverse) {
         segments = segments.reverse();
     }
     const [firstSegment] = segments;
-    if (firstSegment.endTime - firstSegment.startTime < MINUTE) {
+    if (firstSegment && firstSegment.endTime - firstSegment.startTime < MINUTE) {
         return segments.slice(1);
     }
     return segments;
